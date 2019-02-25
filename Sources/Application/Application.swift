@@ -50,7 +50,7 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
             var jwt = JWT(claims: ClaimsStandardJWT(iss: "Kitura"))
             let jwtString = try jwt.sign(using: .rs256(privateKey: self.rsaPrivKey.data(using: .utf8)!))
             let verified = JWT<ClaimsStandardJWT>.verify(jwtString, using: .rs256(publicKey: self.rsaPubKey.data(using: .utf8)!))
-            response.send(verified)
+            response.send(verified.value)
             next()
         }
     }
