@@ -1,0 +1,3 @@
+.build/							usr/src/testJWT
+terraform/scripts/install.sh	usr/src/testJWT
+terraform/scripts/start.sh		usr/src/testJWT

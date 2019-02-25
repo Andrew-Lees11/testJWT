@@ -1,0 +1,4 @@
+module agentcore {
+    umbrella "/Users/andrewlees/test/testJWT/.build/checkouts/omr-agentcore--5170348660613004188/src/agentcore/include"
+    export *
+}
