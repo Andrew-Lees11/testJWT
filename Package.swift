@@ -9,7 +9,7 @@ let package = Package(
       .package(url: "https://github.com/IBM-Swift/CloudEnvironment.git", from: "9.0.0"),
       .package(url: "https://github.com/RuntimeTools/SwiftMetrics.git", from: "2.0.0"),
       .package(url: "https://github.com/IBM-Swift/Health.git", from: "1.0.0"),
-      .package(url: "https://github.com/IBM-Swift/Swift-JWT.git", from: "3.1.0")
+      .package(url: "https://github.com/IBM-Swift/Swift-JWT.git", .branch("memoryLeak"))
     ],
     targets: [
       .target(name: "testJWT", dependencies: [ .target(name: "Application"), "Kitura" , "HeliumLogger"]),

@@ -6,10 +6,12 @@ import CloudEnvironment
 import KituraContracts
 import Health
 import SwiftJWT
+import CryptorRSA
 
 public let projectPath = ConfigurationManager.BasePath.project.path
 public let health = Health()
 
+@available(OSX 10.12, *)
 public class App {
     let router = Router()
     let cloudEnv = CloudEnv()
@@ -37,20 +39,55 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
 37sJ5QsW+sJyoNde3xH8vdXhzU7eT82D6X/scw9RZz+/6rCJ4p0=
 -----END RSA PRIVATE KEY-----
 """
+    var globalJWT = JWT(claims: ClaimsStandardJWT(iss: "Kitura"))
+    var globalJWTString: String?
     
     public init() throws {
         // Run the metrics initializer
         initializeMetrics(router: router)
+        globalJWTString = try globalJWT.sign(using: .rs256(privateKey: self.rsaPrivKey.data(using: .utf8)!))
     }
 
     func postInit() throws {
         // Endpoints
         initializeHealthRoutes(app: self)
-        router.get("/") { request, response, next in
+        router.get("/signVerifyJWT") { request, response, next in
             var jwt = JWT(claims: ClaimsStandardJWT(iss: "Kitura"))
             let jwtString = try jwt.sign(using: .rs256(privateKey: self.rsaPrivKey.data(using: .utf8)!))
             let verified = JWT<ClaimsStandardJWT>.verify(jwtString, using: .rs256(publicKey: self.rsaPubKey.data(using: .utf8)!))
             response.send(verified.value)
+            next()
+        }
+        router.get("/verifyJWT") { request, response, next in
+            if let jwtString = self.globalJWTString {
+                let verified = JWT<ClaimsStandardJWT>.verify(jwtString, using: .rs256(publicKey: self.rsaPubKey.data(using: .utf8)!))
+                response.send(verified.value)
+            }
+            next()
+        }
+        router.get("/signJWT") { request, response, next in
+            var jwt = JWT(claims: ClaimsStandardJWT(iss: "Kitura"))
+            let jwtString = try jwt.sign(using: .rs256(privateKey: self.rsaPrivKey.data(using: .utf8)!))
+            response.send(jwtString)
+            next()
+        }
+        router.get("/rsaPrivKey") { request, response, next in
+            let _ = try CryptorRSA.createPrivateKey(withPEM: self.rsaPrivKey)
+            response.send("PrivKey")
+            next()
+        }
+        router.get("/rsaPublicKey") { request, response, next in
+            let _ = try CryptorRSA.createPublicKey(withPEM: self.rsaPubKey)
+            response.send("PubKey")
+            next()
+        }
+        router.get("/rsaEncrypt") { request, response, next in
+            let rsaPriv = try CryptorRSA.createPrivateKey(withPEM: self.rsaPrivKey)
+            let rsaPub = try CryptorRSA.createPublicKey(withPEM: self.rsaPubKey)
+            let plaintext = try CryptorRSA.createPlaintext(with: "Hello", using: .utf8)
+            let encrypted = try plaintext.encrypted(with: rsaPub, algorithm: .gcm)
+            let decrypted = try encrypted?.decrypted(with: rsaPriv, algorithm: .gcm)
+            try response.send(decrypted?.string(using: .utf8))
             next()
         }
     }

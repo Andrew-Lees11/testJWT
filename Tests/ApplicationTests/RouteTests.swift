@@ -7,6 +7,7 @@ import LoggerAPI
 
 @testable import Application
 
+@available(OSX 10.12, *)
 class RouteTests: XCTestCase {
     static var port: Int!
     static var allTests : [(String, (RouteTests) -> () throws -> Void)] {
@@ -87,6 +88,7 @@ class RouteTests: XCTestCase {
 
 private extension URLRequest {
 
+    @available(OSX 10.12, *)
     init?(forTestWithMethod method: String, route: String = "", body: Data? = nil) {
         if let url = URL(string: "http://127.0.0.1:\(RouteTests.port)/" + route){
             self.init(url: url)

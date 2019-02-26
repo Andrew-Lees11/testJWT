@@ -8,8 +8,10 @@ do {
 
     HeliumLogger.use(LoggerMessageType.info)
 
-    let app = try App()
-    try app.run()
+    if #available(OSX 10.12, *) {
+        let app = try App()
+        try app.run()
+    } 
 
 } catch let error {
     Log.error(error.localizedDescription)
